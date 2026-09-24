@@ -15,15 +15,15 @@ export default function ResumeDoc({ data }) {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <p className="no-print text-center font-report text-[11px] uppercase tracking-widest text-inksoft mb-3">
-        ✎ tip — click any text below to edit it before printing
+      <p className="no-print text-center label mb-4">
+        ✎ click any text below to edit it before printing
       </p>
       <div
         id="resume-sheet"
         contentEditable
         suppressContentEditableWarning
         spellCheck={false}
-        className="bg-white text-[#1a1a1a] rounded-sm border border-line shadow-[8px_8px_0_0_rgba(28,36,32,0.15)] px-10 py-12 md:px-14 focus:outline-none"
+        className="bg-white text-[#1a1a1a] border border-line px-10 py-12 md:px-14 focus:outline-none"
         style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
       >
         <h1 className="text-[32px] font-bold tracking-tight leading-none">{data.name}</h1>
@@ -107,7 +107,7 @@ export default function ResumeDoc({ data }) {
           </>
         )}
       </div>
-      <p className="no-print text-center font-report text-[11px] uppercase tracking-widest text-inksoft mt-4">
+      <p className="no-print text-center label mt-5">
         single column · standard headings · zero graphics — parser-approved
       </p>
     </div>
