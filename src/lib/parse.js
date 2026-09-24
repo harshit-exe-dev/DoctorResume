@@ -221,13 +221,19 @@ function parseEntries(sectionText) {
     }
     const m = role.match(/^(.*?)\s+(?:at|@|\||–|—|-)\s+(.*)$/);
     if (m) { role = m[1].trim(); org = m[2].trim(); }
-    // Dates trailing the org ("Volunteer | X University September 2025 – August 2026")
-    // move to their own dates line.
+    // Dates trailing the org ("Volunteer | X University September 2025 – August 2026",
+    // or a single "September 2025") move to their own dates field.
     let dates = e.dates;
     const dm = !dates && org.match(DATE_RE);
     if (dm) {
       dates = dm[0].trim();
       org = org.replace(dm[0], "").replace(/\s{2,}/g, " ").replace(/\s*[|–—-]\s*$/, "").trim();
+    } else if (!dates) {
+      const sm = org.match(/((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+\d{4}|\b\d{4})\s*$/i);
+      if (sm && org.replace(sm[0], "").trim()) {
+        dates = sm[0].trim();
+        org = org.replace(sm[0], "").replace(/\s{2,}/g, " ").replace(/\s*[|–—-]\s*$/, "").trim();
+      }
     }
     const extra = e.lines.filter((l) => l && !DATE_RE.test(l)).slice(0, 2).join(" ");
     return { role: role || "Role / Project", org, dates, link, bullets: e.bullets.slice(0, 6), extra };
@@ -362,32 +368,34 @@ export function reconstructResume(text) {
 export function resumeToText(r) {
   const out = [];
   out.push(r.name.toUpperCase());
-  const c = [r.contact.email, r.contact.phone, r.contact.linkedin, r.contact.github, r.contact.location].filter(Boolean);
+  const c = [r.contact.location, r.contact.phone, r.contact.email, r.contact.linkedin, r.contact.github].filter(Boolean);
   if (c.length) out.push(c.join(" | "));
   out.push("");
   if (r.summary) { out.push("SUMMARY", r.summary, ""); }
-  if (r.skills.length) { out.push("SKILLS", r.skills.join(", "), ""); }
-  if (r.experience.length) {
-    out.push((r.experienceLabel || "Experience").toUpperCase());
-    for (const e of r.experience) {
-      out.push(`${e.role}${e.org ? " — " + e.org : ""}${e.dates ? " | " + e.dates : ""}`);
-      if (e.link) out.push(e.link);
-      if (e.extra) out.push(e.extra);
-      for (const b of e.bullets) out.push("• " + b);
-      out.push("");
-    }
+  // Industry order: Education → Technical Skills → Coursework → Experience
+  // (work) → Projects → Leadership.
+  const entryBlock = (e) => {
+    out.push(`${e.role}${e.org ? " | " + e.org : ""}${e.dates ? " | " + e.dates : ""}`);
+    if (e.link) out.push(e.link);
+    if (e.extra) out.push(e.extra);
+    for (const b of e.bullets) out.push("• " + b);
+    out.push("");
+  };
+  if (r.education.length) { out.push("EDUCATION", ...r.education, ""); }
+  if (r.skills.length) { out.push("TECHNICAL SKILLS", r.skills.join(", "), ""); }
+  if (r.coursework && r.coursework.length) { out.push("RELEVANT COURSEWORK", r.coursework.join(", "), ""); }
+  const isLeadership = (r.experienceLabel || "Experience") !== "Experience";
+  if (r.experience.length && !isLeadership) {
+    out.push("EXPERIENCE");
+    for (const e of r.experience) entryBlock(e);
   }
   if (r.projects.length) {
     out.push("PROJECTS");
-    for (const e of r.projects) {
-      out.push(`${e.role}${e.org ? " — " + e.org : ""}${e.dates ? " | " + e.dates : ""}`);
-      if (e.link) out.push(e.link);
-      if (e.extra) out.push(e.extra);
-      for (const b of e.bullets) out.push("• " + b);
-      out.push("");
-    }
+    for (const e of r.projects) entryBlock(e);
   }
-  if (r.education.length) { out.push("EDUCATION", ...r.education, ""); }
-  if (r.coursework && r.coursework.length) { out.push("RELEVANT COURSEWORK", r.coursework.join(", "), ""); }
+  if (r.experience.length && isLeadership) {
+    out.push((r.experienceLabel || "Experience").toUpperCase());
+    for (const e of r.experience) entryBlock(e);
+  }
   return out.join("\n");
 }
