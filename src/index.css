@@ -6,7 +6,7 @@
   --color-mute: #747474;
   --color-faint: #a3a3a3;
   --color-line: #e5e5e5;
-  --color-red: #cf3a1f;
+  --color-accent: #4e7a61;
 
   --font-display: "Space Grotesk", system-ui, -apple-system, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
@@ -25,7 +25,7 @@ body {
 }
 
 ::selection {
-  background: var(--color-red);
+  background: var(--color-accent);
   color: #fff;
 }
 
@@ -56,7 +56,7 @@ body {
   text-decoration-thickness: 1px;
 }
 .tlink:hover {
-  color: var(--color-red);
+  color: var(--color-accent);
 }
 
 /* ---- analyzing caret ---- */
@@ -67,7 +67,7 @@ body {
 .caret::after {
   content: "▍";
   animation: blink-caret 1s step-end infinite;
-  color: var(--color-red);
+  color: var(--color-accent);
 }
 
 .tabular {

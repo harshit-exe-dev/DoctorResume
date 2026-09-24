@@ -17,7 +17,7 @@ const STEPS = [
 const DOT = {
   healthy: "bg-faint",
   watch: "bg-ink",
-  critical: "bg-red",
+  critical: "bg-accent",
 };
 
 const STATUS_LABEL = { healthy: "healthy", watch: "needs watch", critical: "critical" };
@@ -36,8 +36,8 @@ const VERDICT_TAG = {
   fit: "bg-ink text-white border-ink",
   stable: "bg-ink text-white border-ink",
   treatment: "border-ink text-ink",
-  critical: "border-red text-red",
-  codeblue: "bg-red text-white border-red",
+  critical: "border-accent text-accent",
+  codeblue: "bg-accent text-white border-accent",
 };
 
 function CategoryRow({ cat }) {
@@ -56,7 +56,7 @@ function CategoryRow({ cat }) {
       </summary>
       <div className="pb-7 pl-1 pr-1 md:pl-[4.5rem] max-w-3xl">
         <div className="h-px bg-line mb-5 relative">
-          <div className={`h-px fillbar ${cat.status === "critical" ? "bg-red" : "bg-ink"}`} style={{ width: `${(cat.score / cat.max) * 100}%` }} />
+          <div className={`h-px fillbar ${cat.status === "critical" ? "bg-accent" : "bg-ink"}`} style={{ width: `${(cat.score / cat.max) * 100}%` }} />
         </div>
         <ul className="space-y-2.5">
           {cat.findings.map((f, i) => (
@@ -215,7 +215,7 @@ export default function Clinic() {
                   onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
                   onClick={() => fileInput.current?.click()}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.current?.click(); } }}
-                  className={`border ${dragOver ? "border-red bg-red/[0.03]" : "border-line"} px-8 py-14 text-center cursor-pointer transition-colors hover:border-ink focus:outline-none focus:border-ink`}
+                  className={`border ${dragOver ? "border-accent bg-accent/[0.03]" : "border-line"} px-8 py-14 text-center cursor-pointer transition-colors hover:border-ink focus:outline-none focus:border-ink`}
                 >
                   <input ref={fileInput} type="file" accept=".pdf,.docx,.txt,.md" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
                   <p className="text-2xl font-medium tracking-tight">drop your resume here</p>
@@ -234,20 +234,20 @@ export default function Clinic() {
                   />
                   <button
                     onClick={() => runAnalysis(pasteText, { hasImages: false, fileType: "TEXT" }, "pasted-resume.txt")}
-                    className="mt-4 bg-ink text-white font-mono text-[11px] uppercase tracking-[0.18em] px-7 py-4 hover:bg-red transition-colors"
+                    className="mt-4 bg-ink text-white font-mono text-[11px] uppercase tracking-[0.18em] px-7 py-4 hover:bg-accent transition-colors"
                   >
                     run the diagnosis →
                   </button>
                 </div>
               )}
 
-              {error && <p className="text-red text-[15px] border border-red/40 px-4 py-3">{error}</p>}
+              {error && <p className="text-accent text-[15px] border border-accent/40 px-4 py-3">{error}</p>}
 
               <div className="flex flex-wrap gap-x-8 gap-y-2 font-mono text-[11px] uppercase tracking-[0.18em]">
                 <button onClick={() => setPasteMode(!pasteMode)} className="tlink cursor-pointer">
                   {pasteMode ? "← back to file upload" : "paste text instead"}
                 </button>
-                <button onClick={runSample} className="tlink cursor-pointer text-red">
+                <button onClick={runSample} className="tlink cursor-pointer text-accent">
                   try a sample patient
                 </button>
               </div>
@@ -262,7 +262,7 @@ export default function Clinic() {
           <ul className="space-y-4 font-mono text-sm">
             {STEPS.map((s, i) => (
               <li key={s} className={`flex items-center gap-4 transition-opacity ${i <= stepIdx ? "opacity-100" : "opacity-25"}`}>
-                <span className={`w-2 h-2 shrink-0 ${i < stepIdx ? "bg-ink" : i === stepIdx ? "bg-red" : "bg-faint"}`} />
+                <span className={`w-2 h-2 shrink-0 ${i < stepIdx ? "bg-ink" : i === stepIdx ? "bg-accent" : "bg-faint"}`} />
                 <span className={i === stepIdx ? "caret" : ""}>{s}…</span>
               </li>
             ))}
@@ -289,7 +289,7 @@ export default function Clinic() {
                 </p>
                 <div className="h-px bg-line mt-4 relative max-w-[280px]">
                   <div
-                    className={`h-px fillbar ${report.total < 55 ? "bg-red" : "bg-ink"}`}
+                    className={`h-px fillbar ${report.total < 55 ? "bg-accent" : "bg-ink"}`}
                     style={{ width: `${report.total}%` }}
                   />
                 </div>
@@ -333,7 +333,7 @@ export default function Clinic() {
               <div className="mt-6 border-t border-ink">
                 {report.chiefComplaints.map((c, i) => (
                   <div key={i} className="grid grid-cols-[auto_1fr] gap-6 py-6 border-b border-line">
-                    <span className="font-mono text-sm text-red tabular">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="font-mono text-sm text-accent tabular">{String(i + 1).padStart(2, "0")}</span>
                     <div>
                       <p className="label !text-[10px] mb-2">{c.category}</p>
                       <p className="text-lg leading-relaxed max-w-2xl">{c.text}</p>
@@ -362,7 +362,7 @@ export default function Clinic() {
               <ol className="mt-6 border-t border-ink">
                 {report.prescriptions.map((p, i) => (
                   <li key={i} className="grid grid-cols-[auto_1fr] gap-6 py-5 border-b border-line">
-                    <span className="font-mono text-sm text-red tabular">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="font-mono text-sm text-accent tabular">{String(i + 1).padStart(2, "0")}</span>
                     <div>
                       <p className="text-lg leading-relaxed max-w-2xl">{p.text}</p>
                       <p className="label !text-[10px] mt-2">{p.category} · {p.severity}</p>
@@ -377,7 +377,7 @@ export default function Clinic() {
           <div className="no-print flex flex-wrap items-center gap-x-10 gap-y-4 mt-12">
             <button
               onClick={() => { setShowResume(true); setTimeout(() => document.getElementById("treatment")?.scrollIntoView({ behavior: "smooth" }), 80); }}
-              className="bg-red text-white font-mono text-[11px] uppercase tracking-[0.18em] px-8 py-4 hover:bg-ink transition-colors"
+              className="bg-accent text-white font-mono text-[11px] uppercase tracking-[0.18em] px-8 py-4 hover:bg-ink transition-colors"
             >
               generate my ats-safe resume ↓
             </button>
@@ -394,7 +394,7 @@ export default function Clinic() {
             <div id="treatment" className="scroll-mt-8 mt-16 md:mt-24">
               <p className="label">treatment complete</p>
               <h3 className="font-bold lowercase leading-[0.9] tracking-[-0.04em] text-5xl md:text-7xl mt-6">
-                cured<span className="text-red">.</span>
+                cured<span className="text-accent">.</span>
               </h3>
               <p className="text-mute mt-5 max-w-xl text-[15px] leading-relaxed">
                 We rebuilt your resume into a clean, single-column, ATS-safe format.
@@ -436,7 +436,7 @@ export default function Clinic() {
                   <div className="flex flex-wrap items-center gap-x-8 gap-y-3 mt-7">
                     <button
                       onClick={applyProvided}
-                      className="bg-ink text-white font-mono text-[11px] uppercase tracking-[0.18em] px-7 py-3.5 hover:bg-red transition-colors cursor-pointer"
+                      className="bg-ink text-white font-mono text-[11px] uppercase tracking-[0.18em] px-7 py-3.5 hover:bg-accent transition-colors cursor-pointer"
                     >
                       add to my resume →
                     </button>
@@ -451,7 +451,7 @@ export default function Clinic() {
               )}
 
               <div className="no-print flex flex-wrap gap-x-8 gap-y-3 mt-8 mb-10 font-mono text-[11px] uppercase tracking-[0.18em]">
-                <button onClick={printResume} className="bg-ink text-white px-7 py-3.5 hover:bg-red transition-colors cursor-pointer">
+                <button onClick={printResume} className="bg-ink text-white px-7 py-3.5 hover:bg-accent transition-colors cursor-pointer">
                   print / save as pdf
                 </button>
                 <button

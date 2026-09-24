@@ -1,12 +1,12 @@
 function Nav() {
   return (
     <nav className="no-print">
-      {/* thin red rule, like the reference */}
-      <div className="h-[3px] bg-red" />
+      {/* thin accent rule, like the reference */}
+      <div className="h-[3px] bg-accent" />
       <div className="max-w-6xl mx-auto px-5 md:px-8 pt-6 pb-10 grid grid-cols-2 md:grid-cols-4 gap-6 text-[13px]">
         <div>
           <a href="#top" className="font-semibold tracking-tight text-[15px]">
-            doctorresume<sup className="text-red">®</sup>
+            doctorresume<sup className="text-accent">®</sup>
           </a>
           <p className="label mt-3">the resume clinic</p>
         </div>
@@ -27,7 +27,7 @@ function Nav() {
           </a>
         </div>
         <div className="md:text-right">
-          <a href="#clinic" className="font-mono text-[11px] uppercase tracking-[0.18em] text-red">
+          <a href="#clinic" className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">
             ↓ admit your resume
           </a>
         </div>
@@ -41,8 +41,8 @@ export default function Hero() {
     <header>
       <Nav />
       <div className="max-w-6xl mx-auto px-5 md:px-8">
-        {/* red square accent */}
-        <div className="w-3 h-3 bg-red mb-8" />
+        {/* accent square */}
+        <div className="w-3 h-3 bg-accent mb-8" />
         <h1 className="font-bold lowercase leading-[0.88] tracking-[-0.045em] text-[19vw] md:text-[10.5rem]">
           your resume,
           <br />
@@ -68,7 +68,7 @@ export default function Hero() {
             <div className="mt-8 flex flex-col gap-3">
               <a
                 href="#clinic"
-                className="bg-ink text-white font-mono text-[11px] uppercase tracking-[0.18em] px-7 py-4 w-fit hover:bg-red transition-colors"
+                className="bg-ink text-white font-mono text-[11px] uppercase tracking-[0.18em] px-7 py-4 w-fit hover:bg-accent transition-colors"
               >
                 start the checkup ↓
               </a>
@@ -77,7 +77,7 @@ export default function Hero() {
                   document.getElementById("clinic")?.scrollIntoView({ behavior: "smooth" });
                   window.dispatchEvent(new CustomEvent("doctorresume:sample"));
                 }}
-                className="font-mono text-[11px] uppercase tracking-[0.18em] text-red w-fit cursor-pointer"
+                className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent w-fit cursor-pointer"
               >
                 ↓ or see a sample diagnosis
               </button>

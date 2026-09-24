@@ -25,7 +25,7 @@ function HowItWorks() {
       <div className="grid md:grid-cols-3 gap-10 mt-12 border-t border-ink pt-2">
         {steps.map((s) => (
           <div key={s.n} className="pt-8 border-t border-line md:border-t-0 md:pt-8">
-            <p className="font-mono text-sm text-red tabular">{s.n}</p>
+            <p className="font-mono text-sm text-accent tabular">{s.n}</p>
             <h3 className="text-2xl font-semibold tracking-tight lowercase mt-3">{s.title}</h3>
             <p className="text-mute mt-3 leading-relaxed text-[15px]">{s.body}</p>
           </div>
@@ -58,7 +58,7 @@ function Intel() {
       <div className="grid md:grid-cols-3 gap-x-10 gap-y-0 mt-12 border-t border-ink">
         {CASES.map((c, i) => (
           <div key={c.t} className="py-7 border-b border-line">
-            <p className="font-mono text-[11px] text-red tabular">{String(i + 1).padStart(2, "0")}</p>
+            <p className="font-mono text-[11px] text-accent tabular">{String(i + 1).padStart(2, "0")}</p>
             <h3 className="text-xl font-semibold tracking-tight lowercase mt-2">{c.t}</h3>
             <p className="text-mute mt-2 leading-relaxed text-[15px]">{c.d}</p>
           </div>
@@ -74,7 +74,7 @@ function Footer() {
       <div className="max-w-6xl mx-auto px-5 md:px-8 py-12 grid grid-cols-2 md:grid-cols-4 gap-8 text-[13px]">
         <div>
           <p className="font-semibold tracking-tight text-[15px]">
-            doctorresume<sup className="text-red">®</sup>
+            doctorresume<sup className="text-accent">®</sup>
           </p>
           <p className="label mt-3">the resume clinic</p>
         </div>
@@ -91,7 +91,7 @@ function Footer() {
           <span className="text-faint">solid career advice.</span>
         </div>
         <div className="md:text-right">
-          <a href="#clinic" className="font-mono text-[11px] uppercase tracking-[0.18em] text-red">
+          <a href="#clinic" className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">
             ↓ book a checkup
           </a>
         </div>
