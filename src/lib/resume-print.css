@@ -17,7 +17,7 @@ html, body {
 
 #resume-sheet {
   font-family: Georgia, "Times New Roman", serif;
-  color: #1a1a1a;
+  color: #0d0d0d;
   background: #fff;
   border: none !important;
   margin: 0 !important;
@@ -43,7 +43,7 @@ html, body {
   font-size: 10px;
   line-height: 1.5;
   text-align: center;
-  color: #333;
+  color: #1f1f1f;
   margin: 0 0 4px 0;
   overflow-wrap: break-word;
 }
@@ -61,8 +61,8 @@ html, body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: #1a1a1a;
-  border-bottom: 1px solid #1a1a1a;
+  color: #000;
+  border-bottom: 1px solid #000;
   padding-bottom: 4px;
   margin: 13px 0 6px 0;
 }
@@ -85,13 +85,13 @@ html, body {
 #resume-sheet .r-dates {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 9.5px;
-  color: #333;
+  color: #1f1f1f;
   white-space: nowrap;
   margin: 0;
 }
 #resume-sheet .r-extra {
   font-size: 10px;
-  color: #333;
+  color: #161616;
   margin: 2px 0 0 0;
   line-height: 1.4;
 }
@@ -104,7 +104,7 @@ html, body {
   position: relative;
   font-size: 10.5px;
   line-height: 1.42;
-  color: #222;
+  color: #111;
   padding-left: 14px;
   margin: 0 0 2px 0;
 }
@@ -120,7 +120,7 @@ html, body {
   align-items: baseline;
   gap: 12px;
 }
-#resume-sheet .r-edu-line p { margin: 0; font-size: 10.5px; line-height: 1.45; color: #222; }
+#resume-sheet .r-edu-line p { margin: 0; font-size: 10.5px; line-height: 1.45; color: #111; }
 #resume-sheet .r-edu-line p:first-child { font-weight: 400; }
 #resume-sheet .r-edu-line:first-child p:first-child { font-weight: 700; }
 #resume-sheet .r-edu-line .r-dates { font-size: 9.5px; }
@@ -128,7 +128,7 @@ html, body {
 #resume-sheet .r-body, #resume-sheet .r-coursework {
   font-size: 10.5px;
   line-height: 1.45;
-  color: #222;
+  color: #111;
   margin: 0;
 }
 #resume-sheet .r-coursework strong { font-weight: 700; }

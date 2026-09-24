@@ -47,11 +47,22 @@ export function printResume() {
       }
       s.removeAttribute("contenteditable");
       // Measure with the final print styles at the true print width, then
-      // scale down only as much as needed to fit one page.
-      const z = Math.min(1, PRINT_H_PX / s.scrollHeight);
-      if (z < 1) {
+      // scale to fill the page: shrink if overflowing, or scale up a little
+      // (capped) so a shorter resume doesn't leave a big empty gap at the
+      // bottom like an unfilled page.
+      let z = PRINT_H_PX / s.scrollHeight;
+      z = Math.min(1.18, z);
+      if (z !== 1) {
         s.style.zoom = z;
         s.style.width = 100 / z + "%";
+      }
+      // Narrower layout wraps more lines, so re-check the rendered height and
+      // never let it spill past one page.
+      const rendered = s.getBoundingClientRect().height;
+      if (rendered > PRINT_H_PX) {
+        const z2 = z * (PRINT_H_PX / rendered);
+        s.style.zoom = z2;
+        s.style.width = 100 / z2 + "%";
       }
       const win = frame.contentWindow;
       win.addEventListener("afterprint", cleanup);
