@@ -37,7 +37,7 @@ function linkify(text) {
 
 function SectionTitle({ children }) {
   return (
-    <h2 className="font-report text-[13px] print:text-[11px] font-semibold uppercase tracking-[0.22em] text-ink border-b-2 border-ink pb-1.5 print:pb-1 mb-3 print:mb-2 mt-7 print:mt-4 first:mt-0 print:first:mt-0">
+    <h2 className="font-report text-[13px] print:text-[10.5px] font-semibold uppercase tracking-[0.22em] text-ink border-b-2 border-ink pb-1.5 print:pb-1 mb-3 print:mb-1.5 mt-7 print:mt-3 first:mt-0 print:first:mt-0">
       {children}
     </h2>
   );
@@ -45,8 +45,8 @@ function SectionTitle({ children }) {
 
 function Entry({ e }) {
   return (
-    <div className="mb-4 print:mb-2.5">
-      <p className="text-[14.5px] print:text-[11.5px] font-bold">
+    <div className="mb-4 print:mb-2">
+      <p className="text-[14.5px] print:text-[11px] font-bold">
         {e.role}
         {e.org ? <span className="font-normal"> — {e.org}</span> : null}
         {e.link ? (
@@ -54,7 +54,7 @@ function Entry({ e }) {
             href={withProto(e.link)}
             target="_blank"
             rel="noreferrer"
-            className="font-normal text-[11px] print:text-[9.5px] text-[#555] ml-2 align-middle no-underline hover:underline"
+            className="font-normal text-[11px] print:text-[9px] text-[#555] ml-2 align-middle no-underline hover:underline"
             style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
           >
             ↗ {shortUrl(e.link)}
@@ -63,17 +63,17 @@ function Entry({ e }) {
       </p>
       {e.dates && (
         <p
-          className="text-[12.5px] print:text-[10px] text-[#555] italic"
+          className="text-[12.5px] print:text-[9.5px] text-[#555] italic"
           style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
         >
           {e.dates}
         </p>
       )}
-      {e.extra && <p className="text-[13px] print:text-[10.5px] text-[#333] mt-0.5">{linkify(e.extra)}</p>}
+      {e.extra && <p className="text-[13px] print:text-[10px] text-[#333] mt-0.5">{linkify(e.extra)}</p>}
       {e.bullets.length > 0 && (
         <ul className="mt-1.5 print:mt-1 space-y-1 print:space-y-0.5">
           {e.bullets.map((b, j) => (
-            <li key={j} className="text-[13.5px] print:text-[11px] leading-relaxed print:leading-[1.45] text-[#222] pl-4 relative">
+            <li key={j} className="text-[13.5px] print:text-[10.5px] leading-relaxed print:leading-[1.4] text-[#222] pl-4 relative">
               <span className="absolute left-0">•</span>
               {linkify(b)}
             </li>
@@ -84,7 +84,7 @@ function Entry({ e }) {
   );
 }
 
-const BODY = "text-[13.5px] print:text-[11px] leading-relaxed print:leading-[1.45] text-[#222]";
+const BODY = "text-[13.5px] print:text-[10.5px] leading-relaxed print:leading-[1.4] text-[#222]";
 
 export default function ResumeDoc({ data }) {
   const c = data.contact;
@@ -140,11 +140,11 @@ export default function ResumeDoc({ data }) {
         className="bg-white text-[#1a1a1a] border border-line px-10 py-12 md:px-14 print:px-0 print:py-0 focus:outline-none"
         style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
       >
-        <h1 className="text-[32px] print:text-[24px] font-bold tracking-tight leading-none">{data.name}</h1>
-        {data.headline && <p className="text-[15px] print:text-[12px] mt-1.5 text-[#444]">{data.headline}</p>}
+        <h1 className="text-[32px] print:text-[22px] font-bold tracking-tight leading-none">{data.name}</h1>
+        {data.headline && <p className="text-[15px] print:text-[11.5px] mt-1.5 text-[#444]">{data.headline}</p>}
         {bits.length > 0 && (
           <p
-            className="text-[12.5px] print:text-[10.5px] mt-2.5 print:mt-2 text-[#333] break-words"
+            className="text-[12.5px] print:text-[10px] mt-2.5 print:mt-2 text-[#333] break-words"
             style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
           >
             {bits.map((b, i) => (
