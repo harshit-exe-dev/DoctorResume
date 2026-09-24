@@ -106,6 +106,13 @@ export default function ResumeDoc({ data }) {
             ))}
           </>
         )}
+
+        {data.coursework && data.coursework.length > 0 && (
+          <>
+            <SectionTitle>Relevant Coursework</SectionTitle>
+            <p className="text-[13.5px] leading-relaxed text-[#222]">{data.coursework.join(", ")}</p>
+          </>
+        )}
       </div>
       <p className="no-print text-center label mt-5">
         single column · standard headings · zero graphics — parser-approved
