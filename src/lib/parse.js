@@ -129,6 +129,12 @@ function parseEntries(sectionText) {
 }
 
 export function reconstructResume(text) {
+  // The treatment applies its own prescription: drop the
+  // "References available upon request" line instead of carrying it over.
+  text = text
+    .split("\n")
+    .filter((l) => !/^\s*references(\s+available)?(\s+upon\s+request)?\s*\.?\s*$/i.test(l))
+    .join("\n");
   const lines = text.split("\n");
   const name = guessName(lines);
 
