@@ -8,14 +8,43 @@ import mammoth from "mammoth";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
+function itemsToLines(items) {
+  // pdfjs gives raw text runs with x/y positions but no line breaks.
+  // Group runs by their y-coordinate so real resumes keep their lines.
+  const rows = [];
+  for (const it of items) {
+    if (!it.str || !it.str.trim()) continue;
+    const y = it.transform ? it.transform[5] : 0;
+    let row = rows.find((r) => Math.abs(r.y - y) < 3);
+    if (!row) {
+      row = { y, items: [] };
+      rows.push(row);
+    }
+    row.items.push(it);
+  }
+  rows.sort((a, b) => b.y - a.y);
+  return rows
+    .map((r) => {
+      r.items.sort((a, b) => (a.transform ? a.transform[4] : 0) - (b.transform ? b.transform[4] : 0));
+      return r.items
+        .map((i) => i.str)
+        .join(" ")
+        .replace(/  +/g, " ")
+        .trim();
+    })
+    .filter(Boolean)
+    .join("\n");
+}
+
 async function parsePdf(buffer) {
   const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
   let text = "";
   let imageCount = 0;
+  const linkUrls = [];
   for (let p = 1; p <= Math.min(pdf.numPages, 5); p++) {
     const page = await pdf.getPage(p);
     const content = await page.getTextContent();
-    text += content.items.map((it) => it.str).join(" ") + "\n";
+    text += itemsToLines(content.items) + "\n";
     try {
       const ops = await page.getOperatorList();
       const OPS = pdfjsLib.OPS;
@@ -28,8 +57,22 @@ async function parsePdf(buffer) {
     } catch {
       /* operator list is best-effort */
     }
+    try {
+      // Hyperlinks live in annotations, not text runs — grab them so
+      // "LinkedIn" / "GitHub" link-text becomes a real URL for the doctor.
+      const annots = await page.getAnnotations();
+      for (const a of annots) {
+        if (a && a.subtype === "Link" && a.url && /^https?:\/\//i.test(a.url)) {
+          const clean = a.url.split("#")[0].split("?")[0].replace(/\/$/, "");
+          if (!linkUrls.includes(clean)) linkUrls.push(clean);
+        }
+      }
+    } catch {
+      /* annotations are best-effort */
+    }
   }
-  return { text: text.replace(/  +/g, " ").trim(), hasImages: imageCount > 0, pages: pdf.numPages, fileType: "PDF" };
+  if (linkUrls.length) text += "\n" + linkUrls.join("\n");
+  return { text: text.replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim(), hasImages: imageCount > 0, pages: pdf.numPages, fileType: "PDF" };
 }
 
 async function parseDocx(buffer) {
@@ -138,12 +181,58 @@ export function reconstructResume(text) {
   const lines = text.split("\n");
   const name = guessName(lines);
 
-  const headBlock = lines.slice(0, 10).join("\n");
+  // Standalone URL lines (from PDF link annotations): capture for contact,
+  // then keep them out of the section bodies.
+  const urlLines = [];
+  const bodyLines = lines.filter((l) => {
+    const t = l.trim();
+    if (/^https?:\/\/\S+$/i.test(t)) {
+      urlLines.push(t);
+      return false;
+    }
+    return true;
+  });
+  const urlBlob = urlLines.join(" ");
+
+  const headBlock = bodyLines.slice(0, 10).join("\n");
   const email = (headBlock.match(EMAIL_RE) || [""])[0];
   const phone = (headBlock.match(PHONE_RE) || [""])[0].trim();
-  const linkedin = (headBlock.match(LINKEDIN_RE) || [""])[0].replace(/[),.]+$/, "");
-  const github = (headBlock.match(GITHUB_RE) || [""])[0].replace(/[),.]+$/, "");
-  const locLine = lines.slice(0, 10).map((l) => l.trim()).find((l) => /,/.test(l) && !EMAIL_RE.test(l) && !PHONE_RE.test(l) && l.length < 48 && !/linkedin|github/i.test(l));
+  const findUrl = (re) => {
+    const m = headBlock.match(re) || urlBlob.match(re) || bodyLines.join("\n").match(re);
+    return m ? m[0].split("?")[0].replace(/[\/),.]+$/, "") : "";
+  };
+  const linkedin = findUrl(LINKEDIN_RE);
+  const github = findUrl(GITHUB_RE);
+  // Prefer the location segment of the contact line itself ("City, State • phone • email").
+  const contactLine = bodyLines
+    .slice(0, 6)
+    .map((l) => l.trim())
+    .find((l) => EMAIL_RE.test(l) || PHONE_RE.test(l));
+  let location = "";
+  if (contactLine) {
+    location =
+      contactLine
+        .split(/[•|]/)
+        .map((s) => s.trim())
+        .find(
+          (s) =>
+            /,/.test(s) &&
+            !EMAIL_RE.test(s) &&
+            !PHONE_RE.test(s) &&
+            !/https?:|linkedin|github/i.test(s) &&
+            s.length < 48
+        ) || "";
+  }
+  if (!location) {
+    location =
+      bodyLines
+        .slice(0, 10)
+        .map((l) => l.trim())
+        .find(
+          (l) =>
+            /,/.test(l) && !EMAIL_RE.test(l) && !PHONE_RE.test(l) && l.length < 48 && !/linkedin|github/i.test(l)
+        ) || "";
+  }
 
   // Reuse the section splitter from the engine via a light local copy of patterns.
   const HEADER_PATTERNS = {
@@ -152,6 +241,7 @@ export function reconstructResume(text) {
     education: /^education|academic\s+background|academic\s+qualifications?/i,
     skills: /^(technical\s+)?skills|technologies|tech(nical)?\s+stack|core\s+competencies|tools?\s+and\s+technologies/i,
     summary: /^(professional\s+)?summary|objective|profile|about(\s+me)?/i,
+    coursework: /^(relevant\s+)?coursework/i,
   };
   const cleanH = (l) => l.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, "").trim();
   const sections = {};
@@ -162,7 +252,7 @@ export function reconstructResume(text) {
     if (body) sections[curId] = (sections[curId] ? sections[curId] + "\n" : "") + body;
     curLines = [];
   };
-  for (const raw of lines) {
+  for (const raw of bodyLines) {
     const t = raw.trim();
     const h = cleanH(t);
     let hit = null;
@@ -183,7 +273,7 @@ export function reconstructResume(text) {
   return {
     name,
     headline: "",
-    contact: { email, phone, linkedin, github, location: locLine || "" },
+    contact: { email, phone, linkedin, github, location },
     summary,
     experience,
     projects,
