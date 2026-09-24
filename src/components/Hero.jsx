@@ -100,7 +100,7 @@ export default function Hero() {
             <p className="font-display font-bold text-lg">Aarav Mehta</p>
             <p className="font-report text-xs text-inksoft">applicant · full-stack role</p>
             <div className="flex items-end justify-between mt-3">
-              <p className="font-report text-5xl font-semibold tabular text-coral">42</p>
+              <p className="font-report text-5xl font-semibold tabular text-coral">54</p>
               <p className="font-report text-[10px] uppercase tracking-widest text-inksoft text-right">ats health<br />score / 100</p>
             </div>
             <Ekg className="w-full h-10 mt-2 text-coral" fast />
