@@ -4,7 +4,7 @@ import { ROLES, ROLE_KEYS } from "../lib/roles";
 import { parseFile, reconstructResume, resumeToText } from "../lib/parse";
 import { SAMPLE_RESUME, SAMPLE_FILENAME } from "../lib/sampleResume";
 import ResumeDoc from "./ResumeDoc";
-import { printResume } from "../lib/printResume.js";
+import { printResume, downloadResumeHtml } from "../lib/printResume.js";
 
 const STEPS = [
   "checking pulse — contact information",
@@ -466,6 +466,12 @@ export default function Clinic() {
                   className="tlink cursor-pointer"
                 >
                   download .txt
+                </button>
+                <button
+                  onClick={downloadResumeHtml}
+                  className="tlink cursor-pointer"
+                >
+                  download .html
                 </button>
                 <button
                   onClick={() => { navigator.clipboard?.writeText(resumeToText(resumeData)); }}
