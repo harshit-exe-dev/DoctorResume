@@ -269,6 +269,8 @@ export function reconstructResume(text) {
   const skills = skillsRaw.split(/[,•|]/).map((s) => s.replace(/^[•\-\*]\s*/, "").trim()).filter((s) => s && s.length < 40).slice(0, 24);
   const education = (sections.education || "").split("\n").map((l) => l.trim()).filter((l) => l && !isBullet(l)).slice(0, 4);
   const summary = (sections.summary || "").split("\n").map((l) => l.trim()).filter(Boolean).join(" ").slice(0, 400);
+  const courseworkRaw = (sections.coursework || "").split("\n").map((l) => l.trim()).filter(Boolean).join(" ");
+  const coursework = courseworkRaw.split(/[,•|]/).map((s) => s.replace(/^[•\-\*]\s*/, "").trim()).filter((s) => s && s.length < 60).slice(0, 12);
 
   return {
     name,
@@ -278,6 +280,7 @@ export function reconstructResume(text) {
     experience,
     projects,
     education,
+    coursework,
     skills,
   };
 }
@@ -307,5 +310,6 @@ export function resumeToText(r) {
     }
   }
   if (r.education.length) { out.push("EDUCATION", ...r.education, ""); }
+  if (r.coursework && r.coursework.length) { out.push("RELEVANT COURSEWORK", r.coursework.join(", "), ""); }
   return out.join("\n");
 }
