@@ -372,7 +372,23 @@ export default function Clinic() {
                 Click any text to tweak it, then print to PDF.
               </p>
               <div className="no-print flex flex-wrap gap-x-8 gap-y-3 mt-8 mb-10 font-mono text-[11px] uppercase tracking-[0.18em]">
-                <button onClick={() => window.print()} className="bg-ink text-white px-7 py-3.5 hover:bg-red transition-colors cursor-pointer">
+                <button onClick={() => {
+                  // Guarantee a single A4 page: shrink the resume sheet to fit
+                  // the printable area (zoom affects layout, so it prints).
+                  const sheet = document.getElementById("resume-sheet");
+                  if (sheet) {
+                    const PRINTABLE_PX = 1030; // A4 @96dpi minus 11mm top/bottom margins
+                    const z = Math.min(1, PRINTABLE_PX / sheet.scrollHeight);
+                    if (z < 1) {
+                      sheet.style.zoom = z;
+                      sheet.style.width = `${100 / z}%`;
+                      const reset = () => { sheet.style.zoom = ""; sheet.style.width = ""; window.removeEventListener("afterprint", reset); };
+                      window.addEventListener("afterprint", reset);
+                      setTimeout(reset, 8000); // fallback if afterprint never fires
+                    }
+                  }
+                  window.print();
+                }} className="bg-ink text-white px-7 py-3.5 hover:bg-red transition-colors cursor-pointer">
                   print / save as pdf
                 </button>
                 <button

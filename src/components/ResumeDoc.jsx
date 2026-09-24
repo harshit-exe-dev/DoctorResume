@@ -179,7 +179,7 @@ export default function ResumeDoc({ data }) {
 
         {data.experience.length > 0 && (
           <>
-            <SectionTitle>Experience</SectionTitle>
+            <SectionTitle>{data.experienceLabel || "Experience"}</SectionTitle>
             {data.experience.map((e, i) => (
               <Entry key={i} e={e} />
             ))}

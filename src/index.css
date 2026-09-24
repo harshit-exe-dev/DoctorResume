@@ -108,7 +108,7 @@ body {
   }
   #resume-sheet {
     position: static !important;
-    width: 100% !important;
+    width: 100%; /* no !important: the print button may set an inline width to compensate zoom */
     max-width: none !important;
     margin: 0 !important;
     box-shadow: none !important;

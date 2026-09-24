@@ -299,7 +299,7 @@ export function reconstructResume(text) {
 
   // Reuse the section splitter from the engine via a light local copy of patterns.
   const HEADER_PATTERNS = {
-    experience: /^(work\s+)?experience|employment(\s+history)?|work history|leadership/i,
+    experience: /^(work\s+)?experience|employment(\s+history)?|work history|leadership|volunteer|internships?/i,
     projects: /^(academic|personal|key|selected)?\s*projects?/i,
     education: /^education|academic\s+background|academic\s+qualifications?/i,
     skills: /^(technical\s+)?skills|technologies|tech(nical)?\s+stack|core\s+competencies|tools?\s+and\s+technologies/i,
@@ -310,6 +310,7 @@ export function reconstructResume(text) {
   const sections = {};
   let curId = "preamble";
   let curLines = [];
+  let experienceLeadership = false;
   const flush = () => {
     const body = curLines.join("\n").trim();
     if (body) sections[curId] = (sections[curId] ? sections[curId] + "\n" : "") + body;
@@ -322,7 +323,14 @@ export function reconstructResume(text) {
     if (h && h.length <= 48) {
       for (const [id, re] of Object.entries(HEADER_PATTERNS)) if (re.test(h)) { hit = id; break; }
     }
-    if (hit) { flush(); curId = hit; } else curLines.push(raw);
+    if (hit) {
+      flush();
+      curId = hit;
+      // Leadership / volunteering content is not job experience — remember its
+      // origin so the generated resume labels it honestly (freshers often have
+      // no work experience at all, and it must not be dressed up as one).
+      if (hit === "experience" && /\bleadership\b|volunteer|extracurricular|involvement|community/i.test(h)) experienceLeadership = true;
+    } else curLines.push(raw);
   }
   flush();
 
@@ -341,6 +349,9 @@ export function reconstructResume(text) {
     contact: { email, phone, linkedin, github, location },
     summary,
     experience,
+    // Honest heading: volunteering / leadership is not job experience.
+    // When a fresher has no work history at all, this section is simply omitted.
+    experienceLabel: experienceLeadership ? "Leadership & Volunteer Experience" : "Experience",
     projects,
     education,
     coursework,
@@ -357,7 +368,7 @@ export function resumeToText(r) {
   if (r.summary) { out.push("SUMMARY", r.summary, ""); }
   if (r.skills.length) { out.push("SKILLS", r.skills.join(", "), ""); }
   if (r.experience.length) {
-    out.push("EXPERIENCE");
+    out.push((r.experienceLabel || "Experience").toUpperCase());
     for (const e of r.experience) {
       out.push(`${e.role}${e.org ? " — " + e.org : ""}${e.dates ? " | " + e.dates : ""}`);
       if (e.link) out.push(e.link);
