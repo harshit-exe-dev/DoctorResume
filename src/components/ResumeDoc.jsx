@@ -12,8 +12,13 @@ function shortUrl(u) {
 }
 
 // Turns raw URLs (and bare domains like bumart.vercel.app) in text into links.
-const URL_SPLIT_RE =
-  /((?:https?:\/\/)?(?:[a-zA-Z0-9-]+\.)+(?:com|io|app|dev|in|org|net|edu|gov|co|ai|tech|me|site|link|page|xyz)(?:\/[^\s)]*)?)/g;
+// A bare two-label word like "Socket.io" (a library name, not a link) is
+// left alone: without a protocol it needs a path or 3+ labels to count.
+const TLDS = "(?:com|io|app|dev|in|org|net|edu|gov|co|ai|tech|me|site|link|page|xyz)";
+const URL_SPLIT_RE = new RegExp(
+  `(https?://(?:[a-zA-Z0-9-]+\\.)+${TLDS}(?:/[^\\s)]*)?|(?:[a-zA-Z0-9-]+\\.){2,}${TLDS}(?:/[^\\s)]*)?|(?:[a-zA-Z0-9-]+\\.)+${TLDS}/[^\\s)]+)`,
+  "g"
+);
 
 function linkify(text) {
   return String(text)
