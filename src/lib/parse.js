@@ -8,7 +8,7 @@ import mammoth from "mammoth";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
-function itemsToLines(items) {
+function itemsToLinesDetailed(items) {
   // pdfjs gives raw text runs with x/y positions but no line breaks.
   // Group runs by their y-coordinate so real resumes keep their lines.
   const rows = [];
@@ -26,25 +26,36 @@ function itemsToLines(items) {
   return rows
     .map((r) => {
       r.items.sort((a, b) => (a.transform ? a.transform[4] : 0) - (b.transform ? b.transform[4] : 0));
-      return r.items
+      const text = r.items
         .map((i) => i.str)
         .join(" ")
         .replace(/  +/g, " ")
         .trim();
+      return { y: r.y, text };
     })
-    .filter(Boolean)
+    .filter((r) => r.text);
+}
+
+function itemsToLines(items) {
+  return itemsToLinesDetailed(items)
+    .map((r) => r.text)
     .join("\n");
+}
+
+function normalizeUrl(u) {
+  return u.toLowerCase().replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
 }
 
 async function parsePdf(buffer) {
   const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
   let text = "";
   let imageCount = 0;
-  const linkUrls = [];
+  const seenLinks = [];
+  const unmatchedLinks = [];
   for (let p = 1; p <= Math.min(pdf.numPages, 5); p++) {
     const page = await pdf.getPage(p);
     const content = await page.getTextContent();
-    text += itemsToLines(content.items) + "\n";
+    const lineRows = itemsToLinesDetailed(content.items);
     try {
       const ops = await page.getOperatorList();
       const OPS = pdfjsLib.OPS;
@@ -58,20 +69,42 @@ async function parsePdf(buffer) {
       /* operator list is best-effort */
     }
     try {
-      // Hyperlinks live in annotations, not text runs — grab them so
-      // "LinkedIn" / "GitHub" link-text becomes a real URL for the doctor.
+      // Hyperlinks live in annotations, not text runs. Attach each link to
+      // its text line so the rebuilt resume carries the same links.
       const annots = await page.getAnnotations();
       for (const a of annots) {
-        if (a && a.subtype === "Link" && a.url && /^https?:\/\//i.test(a.url)) {
-          const clean = a.url.split("#")[0].split("?")[0].replace(/\/$/, "");
-          if (!linkUrls.includes(clean)) linkUrls.push(clean);
+        if (!a || a.subtype !== "Link" || !a.url || !/^https?:\/\//i.test(a.url) || /^mailto:/i.test(a.url)) continue;
+        const clean = a.url.split("#")[0].split("?")[0].replace(/\/$/, "");
+        const norm = normalizeUrl(clean);
+        if (seenLinks.includes(norm)) continue;
+        seenLinks.push(norm);
+        const ay = a.rect ? a.rect[1] : null;
+        let target = null;
+        if (ay != null) {
+          let best = 12;
+          for (const row of lineRows) {
+            const d = Math.abs(row.y - ay);
+            if (d < best) {
+              best = d;
+              target = row;
+            }
+          }
+        }
+        if (target && !normalizeUrl(target.text).includes(norm)) {
+          target.text += " (" + clean + ")";
+        } else if (!target) {
+          unmatchedLinks.push(clean);
         }
       }
     } catch {
       /* annotations are best-effort */
     }
+    text += lineRows.map((r) => r.text).join("\n") + "\n";
+    if (unmatchedLinks.length) {
+      text += unmatchedLinks.join("\n") + "\n";
+      unmatchedLinks.length = 0;
+    }
   }
-  if (linkUrls.length) text += "\n" + linkUrls.join("\n");
   return { text: text.replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim(), hasImages: imageCount > 0, pages: pdf.numPages, fileType: "PDF" };
 }
 
@@ -139,6 +172,9 @@ function parseEntries(sectionText) {
       if (cur && cur.bullets.length >= 1 && cur.lines.length > 1) { pushCur(); cur = null; }
       continue;
     }
+    // A carried-over hyperlink (parenthesized URL) shouldn't count toward
+    // the "short standalone line" heuristic below.
+    const bare = line.replace(/https?:\/\/[^\s)]+/g, "").replace(/\(\s*\)/g, " ").replace(/\s{2,}/g, " ").trim();
     if (isBullet(line)) {
       if (!cur) cur = { title: "", dates: "", bullets: [], lines: [] };
       cur.bullets.push(stripBullet(line));
@@ -151,23 +187,50 @@ function parseEntries(sectionText) {
       continue;
     }
     // A short standalone line after bullets likely starts a new entry.
-    if (cur && cur.bullets.length > 0 && line.length < 70 && !/[.!?]$/.test(line)) {
+    // So does any line carrying its own date range (long titles like
+    // "Org | Role | Location September 2025 – August 2026").
+    const startsNewEntry =
+      cur &&
+      cur.bullets.length > 0 &&
+      bare.length > 0 &&
+      !/[.!?]$/.test(bare) &&
+      (bare.length < 70 || DATE_RE.test(bare));
+    if (startsNewEntry) {
       pushCur();
       cur = { title: line, dates: "", bullets: [], lines: [] };
       continue;
     }
     if (!cur) cur = { title: line, dates: "", bullets: [], lines: [] };
     else if (!cur.title) cur.title = line;
+    // A leftover line after bullets is almost always a wrapped bullet
+    // continuation — glue it to the last bullet instead of dropping it.
+    else if (cur.bullets.length > 0) cur.bullets[cur.bullets.length - 1] += " " + line;
     else cur.lines.push(line);
   }
   pushCur();
 
   return entries.slice(0, 6).map((e) => {
     let role = e.title, org = "";
-    const m = e.title.match(/^(.*?)\s+(?:at|@|\||–|—|-)\s+(.*)$/);
+    // A link carried over from the original resume (PDF hyperlink) lives on
+    // the title line — lift it out so it renders as a real link.
+    let link = "";
+    const urlM = e.title.match(/https?:\/\/[^\s)]+/);
+    if (urlM) {
+      link = urlM[0].replace(/[),.]+$/, "");
+      role = role.replace(urlM[0], "").replace(/\s{2,}/g, " ").replace(/\s*\(\s*\)\s*/g, " ").trim();
+    }
+    const m = role.match(/^(.*?)\s+(?:at|@|\||–|—|-)\s+(.*)$/);
     if (m) { role = m[1].trim(); org = m[2].trim(); }
+    // Dates trailing the org ("Volunteer | X University September 2025 – August 2026")
+    // move to their own dates line.
+    let dates = e.dates;
+    const dm = !dates && org.match(DATE_RE);
+    if (dm) {
+      dates = dm[0].trim();
+      org = org.replace(dm[0], "").replace(/\s{2,}/g, " ").replace(/\s*[|–—-]\s*$/, "").trim();
+    }
     const extra = e.lines.filter((l) => l && !DATE_RE.test(l)).slice(0, 2).join(" ");
-    return { role: role || "Role / Project", org, dates: e.dates, bullets: e.bullets.slice(0, 6), extra };
+    return { role: role || "Role / Project", org, dates, link, bullets: e.bullets.slice(0, 6), extra };
   });
 }
 
@@ -236,7 +299,7 @@ export function reconstructResume(text) {
 
   // Reuse the section splitter from the engine via a light local copy of patterns.
   const HEADER_PATTERNS = {
-    experience: /^(work\s+)?experience|employment(\s+history)?|work history/i,
+    experience: /^(work\s+)?experience|employment(\s+history)?|work history|leadership/i,
     projects: /^(academic|personal|key|selected)?\s*projects?/i,
     education: /^education|academic\s+background|academic\s+qualifications?/i,
     skills: /^(technical\s+)?skills|technologies|tech(nical)?\s+stack|core\s+competencies|tools?\s+and\s+technologies/i,
@@ -297,6 +360,8 @@ export function resumeToText(r) {
     out.push("EXPERIENCE");
     for (const e of r.experience) {
       out.push(`${e.role}${e.org ? " — " + e.org : ""}${e.dates ? " | " + e.dates : ""}`);
+      if (e.link) out.push(e.link);
+      if (e.extra) out.push(e.extra);
       for (const b of e.bullets) out.push("• " + b);
       out.push("");
     }
@@ -305,6 +370,8 @@ export function resumeToText(r) {
     out.push("PROJECTS");
     for (const e of r.projects) {
       out.push(`${e.role}${e.org ? " — " + e.org : ""}${e.dates ? " | " + e.dates : ""}`);
+      if (e.link) out.push(e.link);
+      if (e.extra) out.push(e.extra);
       for (const b of e.bullets) out.push("• " + b);
       out.push("");
     }
