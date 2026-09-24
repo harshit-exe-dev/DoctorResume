@@ -1,145 +1,104 @@
-import Ekg, { Cross } from "./Ekg";
-
-const SYMPTOMS = [
-  "no keywords detected",
-  "three pages long",
-  "missing contact info",
-  "zero measurable results",
-  "tables the ATS can't read",
-  "buzzword overdose",
-  "no skills section",
-  "scanned pdf syndrome",
-];
-
-function Marquee() {
-  const row = [...SYMPTOMS, ...SYMPTOMS];
+function Nav() {
   return (
-    <div className="overflow-hidden bg-coral text-cream border-y-2 border-ink py-2.5 -rotate-1 scale-[1.02] my-2">
-      <div className="marquee-track flex whitespace-nowrap w-max">
-        {[0, 1].map((half) => (
-          <div key={half} className="flex shrink-0">
-            {row.map((s, i) => (
-              <span key={`${half}-${i}`} className="mx-5 font-report text-sm uppercase tracking-widest flex items-center gap-5">
-                {s} <Cross className="w-3 h-3 opacity-70" />
-              </span>
-            ))}
-          </div>
-        ))}
+    <nav className="no-print">
+      {/* thin red rule, like the reference */}
+      <div className="h-[3px] bg-red" />
+      <div className="max-w-6xl mx-auto px-5 md:px-8 pt-6 pb-10 grid grid-cols-2 md:grid-cols-4 gap-6 text-[13px]">
+        <div>
+          <a href="#top" className="font-semibold tracking-tight text-[15px]">
+            doctorresume<sup className="text-red">®</sup>
+          </a>
+          <p className="label mt-3">the resume clinic</p>
+        </div>
+        <div className="flex flex-col gap-1.5 text-mute">
+          <a href="#clinic" className="hover:text-ink w-fit">the clinic</a>
+          <a href="#how" className="hover:text-ink w-fit">how it works</a>
+          <a href="#intel" className="hover:text-ink w-fit">ats intel</a>
+        </div>
+        <div className="flex flex-col gap-1.5 text-mute">
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent("doctorresume:sample"))}
+            className="hover:text-ink w-fit text-left cursor-pointer"
+          >
+            sample diagnosis
+          </button>
+          <a href="https://github.com/harshit-exe-dev/DoctorResume" target="_blank" rel="noreferrer" className="hover:text-ink w-fit">
+            github
+          </a>
+        </div>
+        <div className="md:text-right">
+          <a href="#clinic" className="font-mono text-[11px] uppercase tracking-[0.18em] text-red">
+            ↓ admit your resume
+          </a>
+        </div>
       </div>
-    </div>
+    </nav>
   );
 }
 
 export default function Hero() {
   return (
-    <header className="relative overflow-hidden">
-      {/* nav */}
-      <nav className="no-print relative z-20 max-w-6xl mx-auto flex items-center justify-between px-5 py-4">
-        <a href="#top" className="flex items-center gap-2.5">
-          <span className="w-9 h-9 rounded-lg bg-coral text-cream grid place-items-center shadow-[3px_3px_0_0_var(--color-ink)]">
-            <Cross className="w-5 h-5" />
-          </span>
-          <span className="font-display font-black text-xl tracking-tight">
-            Doctor<span className="text-coral">Resume</span>
-          </span>
-        </a>
-        <div className="hidden md:flex items-center gap-7 font-report text-xs uppercase tracking-widest text-inksoft">
-          <a href="#clinic" className="hover:text-coral transition-colors">The Clinic</a>
-          <a href="#how" className="hover:text-coral transition-colors">How it works</a>
-          <a href="#intel" className="hover:text-coral transition-colors">ATS intel</a>
-        </div>
-        <a
-          href="#clinic"
-          className="bg-ink text-cream font-report text-xs uppercase tracking-widest px-5 py-3 rounded-full hover:bg-coral transition-colors shadow-[3px_3px_0_0_rgba(28,36,32,0.25)]"
-        >
-          Admit your resume
-        </a>
-      </nav>
+    <header>
+      <Nav />
+      <div className="max-w-6xl mx-auto px-5 md:px-8">
+        {/* red square accent */}
+        <div className="w-3 h-3 bg-red mb-8" />
+        <h1 className="font-bold lowercase leading-[0.88] tracking-[-0.045em] text-[19vw] md:text-[10.5rem]">
+          your resume,
+          <br />
+          diagnosed.
+        </h1>
 
-      {/* hero body */}
-      <div className="relative z-10 max-w-6xl mx-auto px-5 pt-10 pb-16 md:pt-16 md:pb-24 grid md:grid-cols-[1.15fr_0.85fr] gap-12 items-center">
-        <div>
-          <p className="font-report text-xs uppercase tracking-[0.25em] text-scrubdark flex items-center gap-2 mb-6">
-            <span className="w-2.5 h-2.5 rounded-full bg-coral pulse-dot inline-block" />
-            The resume clinic — now receiving patients
-          </p>
-          <h1 className="font-display font-black text-5xl md:text-7xl leading-[0.95] tracking-tight">
-            Your resume
+        <div className="grid md:grid-cols-2 gap-8 mt-12 md:mt-16 pb-16 md:pb-24">
+          <p className="label !text-ink max-w-[220px]">
+            upload your resume.
             <br />
-            called in <em className="text-coral">sick.</em>
-          </h1>
-          <p className="mt-6 text-lg text-inksoft max-w-md leading-relaxed">
-            DoctorResume X-rays your resume for everything applicant tracking
-            systems hate, gives it a health score, and writes the prescription —
-            including a brand-new ATS-friendly resume.
+            get an ats health score,
+            <br />
+            a full diagnosis,
+            <br />
+            and a cured rewrite.
           </p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <a
-              href="#clinic"
-              className="bg-scrub text-cream px-7 py-4 rounded-full font-semibold hover:bg-scrubdark transition-colors shadow-[4px_4px_0_0_var(--color-ink)]"
-            >
-              Admit your resume →
-            </a>
-            <a
-              href="#clinic"
-              onClick={() => window.dispatchEvent(new CustomEvent("doctorresume:sample"))}
-              className="suture px-7 py-4 rounded-full font-semibold hover:border-coral hover:text-coral transition-colors bg-cream"
-            >
-              See a sample diagnosis
-            </a>
-          </div>
-          <p className="mt-6 font-report text-xs text-inksoft uppercase tracking-widest">
-            ✚ runs 100% in your browser &nbsp;·&nbsp; nothing uploaded &nbsp;·&nbsp; free forever
-          </p>
-        </div>
-
-        {/* floating chart cards */}
-        <div className="relative h-[420px] hidden md:block" aria-hidden="true">
-          <div className="floaty absolute top-2 left-4 w-64 bg-cream rounded-xl border-2 border-ink p-5 shadow-[6px_6px_0_0_var(--color-ink)]" style={{ "--fl-rot": "-4deg" }}>
-            <p className="font-report text-[10px] uppercase tracking-[0.2em] text-inksoft border-b border-line pb-2 mb-3">Patient chart</p>
-            <p className="font-display font-bold text-lg">Aarav Mehta</p>
-            <p className="font-report text-xs text-inksoft">applicant · full-stack role</p>
-            <div className="flex items-end justify-between mt-3">
-              <p className="font-report text-5xl font-semibold tabular text-coral">54</p>
-              <p className="font-report text-[10px] uppercase tracking-widest text-inksoft text-right">ats health<br />score / 100</p>
+          <div className="md:justify-self-end max-w-sm">
+            <p className="text-[15px] leading-relaxed text-mute">
+              DoctorResume x-rays your resume for everything applicant tracking
+              systems reject — then writes the prescription, including a brand-new
+              ATS-friendly resume. Runs entirely in your browser. Nothing uploaded.
+            </p>
+            <div className="mt-8 flex flex-col gap-3">
+              <a
+                href="#clinic"
+                className="bg-ink text-white font-mono text-[11px] uppercase tracking-[0.18em] px-7 py-4 w-fit hover:bg-red transition-colors"
+              >
+                start the checkup ↓
+              </a>
+              <button
+                onClick={() => {
+                  document.getElementById("clinic")?.scrollIntoView({ behavior: "smooth" });
+                  window.dispatchEvent(new CustomEvent("doctorresume:sample"));
+                }}
+                className="font-mono text-[11px] uppercase tracking-[0.18em] text-red w-fit cursor-pointer"
+              >
+                ↓ or see a sample diagnosis
+              </button>
             </div>
-            <Ekg className="w-full h-10 mt-2 text-coral" fast />
           </div>
-
-          <div className="floaty absolute bottom-16 right-0 w-60 bg-cream rounded-xl border-2 border-ink p-5 shadow-[6px_6px_0_0_var(--color-ink)]" style={{ "--fl-rot": "3deg", animationDelay: "1.2s" }}>
-            <p className="font-display italic font-semibold text-2xl text-scrubdark">℞</p>
-            <p className="font-report text-[10px] uppercase tracking-[0.2em] text-inksoft mt-1 mb-2">Prescription</p>
-            <ul className="text-sm space-y-1.5 text-ink">
-              <li>→ add numbers to bullets</li>
-              <li>→ kill the tables</li>
-              <li>→ feed it keywords</li>
-            </ul>
-            <p className="mt-3 font-report text-[10px] text-inksoft uppercase tracking-widest">refills: unlimited</p>
-          </div>
-
-          <div className="stamp absolute top-40 left-56 border-4 border-coral text-coral font-report font-semibold uppercase tracking-[0.2em] px-4 py-2 rounded-md text-lg bg-cream/60">
-            Critical
-          </div>
-
-          <p className="absolute -bottom-4 -left-6 font-display font-black text-[11rem] leading-none text-ink/5 select-none">Rx</p>
         </div>
-      </div>
 
-      <Marquee />
-
-      {/* vitals strip */}
-      <div className="max-w-6xl mx-auto px-5 py-10 grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          ["8-point", "full-body inspection"],
-          ["100%", "private — runs locally"],
-          ["0", "servers see your resume"],
-          ["2 min", "from upload to prescription"],
-        ].map(([big, small]) => (
-          <div key={small} className="bg-cream border-2 border-ink rounded-xl px-5 py-4 shadow-[4px_4px_0_0_var(--color-ink)]">
-            <p className="font-display font-black text-3xl">{big}</p>
-            <p className="font-report text-[11px] uppercase tracking-widest text-inksoft mt-1">{small}</p>
-          </div>
-        ))}
+        {/* vitals strip — hairline table */}
+        <div className="no-print grid grid-cols-2 md:grid-cols-4 border-t border-l border-line">
+          {[
+            ["8-point", "full-body inspection"],
+            ["100%", "private — runs locally"],
+            ["0", "servers see your resume"],
+            ["2 min", "upload to prescription"],
+          ].map(([big, small]) => (
+            <div key={small} className="border-b border-r border-line px-5 py-6">
+              <p className="text-4xl font-semibold tracking-tight tabular">{big}</p>
+              <p className="label mt-2">{small}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </header>
   );
