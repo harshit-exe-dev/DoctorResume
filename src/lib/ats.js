@@ -35,7 +35,7 @@ const SECTION_DEFS = [
 ];
 
 const HEADER_PATTERNS = {
-  experience: /^(work\s+)?experience|employment(\s+history)?|work history/i,
+  experience: /^(work\s+)?experience|employment(\s+history)?|work history|leadership/i,
   projects: /^(academic|personal|key|selected)?\s*projects?/i,
   education: /^education|academic\s+background|academic\s+qualifications?/i,
   skills: /^(technical\s+)?skills|technologies|tech(nical)?\s+stack|core\s+competencies|tools?\s+and\s+technologies/i,
