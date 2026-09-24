@@ -22,6 +22,16 @@ const DOT = {
 
 const STATUS_LABEL = { healthy: "healthy", watch: "needs watch", critical: "critical" };
 
+// Contact details the parser looks for. Anything missing gets asked for
+// (optionally) before the treated resume is printed.
+const MISSING_FIELDS = [
+  { key: "email", label: "Email address", placeholder: "you@example.com" },
+  { key: "phone", label: "Phone number", placeholder: "+91 98765 43210" },
+  { key: "linkedin", label: "LinkedIn profile URL", placeholder: "linkedin.com/in/yourname" },
+  { key: "github", label: "GitHub / portfolio link", placeholder: "github.com/yourname" },
+  { key: "location", label: "Location", placeholder: "City, State" },
+];
+
 const VERDICT_TAG = {
   fit: "bg-ink text-white border-ink",
   stable: "bg-ink text-white border-ink",
@@ -69,6 +79,8 @@ export default function Clinic() {
   const [report, setReport] = useState(null);
   const [resumeData, setResumeData] = useState(null);
   const [showResume, setShowResume] = useState(false);
+  const [provided, setProvided] = useState({});
+  const [missingOpen, setMissingOpen] = useState(true);
   const [pasteMode, setPasteMode] = useState(false);
   const [pasteText, setPasteText] = useState("");
   const [dragOver, setDragOver] = useState(false);
@@ -93,6 +105,8 @@ export default function Clinic() {
     setError("");
     setFileName(name);
     setShowResume(false);
+    setProvided({});
+    setMissingOpen(true);
     setPhase("analyzing");
     setStepIdx(0);
     let i = 0;
@@ -136,8 +150,22 @@ export default function Clinic() {
     setReport(null);
     setResumeData(null);
     setShowResume(false);
+    setProvided({});
+    setMissingOpen(true);
     setPasteText("");
     setError("");
+  };
+
+  const missingList = resumeData ? MISSING_FIELDS.filter((f) => !resumeData.contact[f.key]) : [];
+
+  const applyProvided = () => {
+    const contact = { ...resumeData.contact };
+    for (const f of MISSING_FIELDS) {
+      const v = (provided[f.key] || "").trim().replace(/[?,.]+$/, "");
+      if (v) contact[f.key] = v;
+    }
+    setResumeData({ ...resumeData, contact });
+    setMissingOpen(false);
   };
 
   const dateStr = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
@@ -372,6 +400,56 @@ export default function Clinic() {
                 We rebuilt your resume into a clean, single-column, ATS-safe format.
                 Click any text to tweak it, then print to PDF.
               </p>
+
+              {missingList.length > 0 && missingOpen && (
+                <div className="no-print border border-ink px-6 py-6 md:px-8 mt-8 mb-2 max-w-3xl">
+                  <p className="label !text-ink">missing details — optional</p>
+                  <p className="mt-3 text-[15px] leading-relaxed text-mute max-w-xl">
+                    We couldn't find{" "}
+                    {missingList.length > 1
+                      ? missingList.slice(0, -1).map((f) => f.label.toLowerCase()).join(", ") +
+                        " and " +
+                        missingList[missingList.length - 1].label.toLowerCase()
+                      : missingList[0].label.toLowerCase()}{" "}
+                    in your resume. Type {missingList.length > 1 ? "them" : "it"} below and we'll
+                    add {missingList.length > 1 ? "them" : "it"} to your treated resume — or leave{" "}
+                    {missingList.length > 1 ? "them" : "it"} blank and carry on without.
+                  </p>
+                  <div className="mt-6 space-y-5">
+                    {missingList.map((f) => (
+                      <div key={f.key}>
+                        <label className="label block mb-2">{f.label}</label>
+                        <input
+                          value={provided[f.key] || ""}
+                          onChange={(e) => setProvided({ ...provided, [f.key]: e.target.value })}
+                          placeholder={f.placeholder}
+                          className="w-full bg-transparent border-b border-line focus:border-ink focus:outline-none py-2.5 text-[15px] placeholder:text-faint"
+                        />
+                        {f.key === "github" && (
+                          <p className="text-sm text-mute mt-1.5">
+                            not from a tech background? skip this one — no problem.
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-8 gap-y-3 mt-7">
+                    <button
+                      onClick={applyProvided}
+                      className="bg-ink text-white font-mono text-[11px] uppercase tracking-[0.18em] px-7 py-3.5 hover:bg-red transition-colors cursor-pointer"
+                    >
+                      add to my resume →
+                    </button>
+                    <button
+                      onClick={() => setMissingOpen(false)}
+                      className="tlink font-mono text-[11px] uppercase tracking-[0.18em] cursor-pointer"
+                    >
+                      skip — continue without
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="no-print flex flex-wrap gap-x-8 gap-y-3 mt-8 mb-10 font-mono text-[11px] uppercase tracking-[0.18em]">
                 <button onClick={printResume} className="bg-ink text-white px-7 py-3.5 hover:bg-red transition-colors cursor-pointer">
                   print / save as pdf

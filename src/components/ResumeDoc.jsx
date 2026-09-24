@@ -145,6 +145,49 @@ function Coursework({ items }) {
 
 const BODY = "r-body text-[13.5px] leading-relaxed text-[#222]";
 
+// Sections the parser has no special template for ("CERTIFICATIONS",
+// "HOBBIES", ...) — carried over verbatim so nothing from the original
+// is lost. Bullets stay bullets, plain lines stay plain lines.
+function ExtraSection({ s }) {
+  const blocks = [];
+  let cur = [];
+  const flushBullets = () => {
+    if (cur.length) {
+      blocks.push({ bullets: cur });
+      cur = [];
+    }
+  };
+  for (const it of s.items) {
+    if (it.bullet) cur.push(it);
+    else {
+      flushBullets();
+      blocks.push({ para: it.text });
+    }
+  }
+  flushBullets();
+  return (
+    <>
+      <SectionTitle>{s.title}</SectionTitle>
+      {blocks.map((b, i) =>
+        b.bullets ? (
+          <ul key={i} className="r-bullets mt-1.5 space-y-1 mb-2">
+            {b.bullets.map((it, j) => (
+              <li key={j} className="text-[13.5px] leading-relaxed text-[#222] pl-4 relative">
+                <span className="r-bmark absolute left-0">•</span>
+                {linkify(it.text)}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p key={i} className={`${BODY} mb-1.5`}>
+            {linkify(b.para)}
+          </p>
+        )
+      )}
+    </>
+  );
+}
+
 export default function ResumeDoc({ data }) {
   const c = data.contact;
   // Industry order: location • phone • email • LinkedIn • GitHub
@@ -195,6 +238,14 @@ export default function ResumeDoc({ data }) {
         style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
       >
         <h1 className="r-name text-[26px] font-bold tracking-tight leading-tight text-center">{data.name}</h1>
+        {data.headline && (
+          <p
+            className="r-headline text-center mt-1.5 text-[12px] uppercase tracking-[0.08em] text-[#333]"
+            style={{ fontFamily: SANS }}
+          >
+            {data.headline}
+          </p>
+        )}
         {bits.length > 0 && (
           <p className="r-contact text-[12.5px] mt-2 text-[#333] break-words text-center" style={{ fontFamily: SANS }}>
             {bits.map((b, i) => (
@@ -262,6 +313,10 @@ export default function ResumeDoc({ data }) {
             ))}
           </>
         )}
+
+        {(data.extraSections || []).map((s, i) => (
+          <ExtraSection key={i} s={s} />
+        ))}
       </div>
       <p className="no-print text-center label mt-5">single column · standard headings · zero graphics — parser-approved</p>
     </div>
