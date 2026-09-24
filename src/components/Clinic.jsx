@@ -373,19 +373,22 @@ export default function Clinic() {
               </p>
               <div className="no-print flex flex-wrap gap-x-8 gap-y-3 mt-8 mb-10 font-mono text-[11px] uppercase tracking-[0.18em]">
                 <button onClick={() => {
-                  // Guarantee a single A4 page: shrink the resume sheet to fit
-                  // the printable area (zoom affects layout, so it prints).
+                  // Fit the resume to exactly one A4 page. Measure at the true
+                  // print width first: the on-screen (phone) layout is much
+                  // narrower, so measuring it over-shrinks the output.
                   const sheet = document.getElementById("resume-sheet");
                   if (sheet) {
-                    const PRINTABLE_PX = 1030; // A4 @96dpi minus 11mm top/bottom margins
-                    const z = Math.min(1, PRINTABLE_PX / sheet.scrollHeight);
+                    const PRINT_W = 703;  // A4 @96dpi minus 12mm side margins
+                    const PRINT_H = 1030; // A4 @96dpi minus 11mm top/bottom margins
+                    sheet.style.width = `${PRINT_W}px`;
+                    const z = Math.min(1, PRINT_H / sheet.scrollHeight);
                     if (z < 1) {
                       sheet.style.zoom = z;
-                      sheet.style.width = `${100 / z}%`;
-                      const reset = () => { sheet.style.zoom = ""; sheet.style.width = ""; window.removeEventListener("afterprint", reset); };
-                      window.addEventListener("afterprint", reset);
-                      setTimeout(reset, 8000); // fallback if afterprint never fires
+                      sheet.style.width = `${PRINT_W / z}px`; // zoom shrinks layout; compensate
                     }
+                    const reset = () => { sheet.style.zoom = ""; sheet.style.width = ""; window.removeEventListener("afterprint", reset); };
+                    window.addEventListener("afterprint", reset);
+                    setTimeout(reset, 8000); // fallback if afterprint never fires
                   }
                   window.print();
                 }} className="bg-ink text-white px-7 py-3.5 hover:bg-red transition-colors cursor-pointer">
