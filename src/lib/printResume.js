@@ -12,6 +12,11 @@
 // (e.g. WPS Office). Opening the print document in a new tab and printing
 // the top-level window from a real tap reliably opens the print dialog,
 // where "Save as PDF" lives on mobile.
+//
+// Why font-size fitting instead of CSS zoom: some print engines (notably
+// WPS Office) ignore `zoom` but still honor the compensating width, which
+// double-shrinks the page — tiny font with half the page left blank.
+// Scaling font sizes is plain CSS every renderer understands.
 
 import printCss from "./resume-print.css?raw";
 
@@ -28,8 +33,30 @@ function sheetClone() {
 }
 
 // Render the sheet at the true print width inside a hidden iframe, fit it to
-// one page, and resolve with the fitted sheet HTML (zoom baked in as inline
-// styles so the receiving document needs no measuring of its own).
+// one page, and resolve with the fitted sheet HTML (font sizes baked in as
+// inline styles so the receiving document needs no measuring of its own).
+//
+// Fitting scales font sizes, never CSS zoom: zoom is ignored by some print
+// engines (e.g. WPS Office) while the compensating width still applies,
+// which double-shrinks the page into tiny text on a half-empty sheet.
+// Unitless line-heights and em-based spacing follow the font size
+// automatically; the small fixed px margins are accounted for by iterating
+// the measurement a few times until the height converges.
+function fitSheet(doc, s) {
+  const els = [s, ...s.querySelectorAll("*")];
+  const view = doc.defaultView;
+  const orig = els.map((el) => parseFloat(view.getComputedStyle(el).fontSize) || 0);
+  let z = Math.min(1.18, PRINT_H_PX / s.scrollHeight);
+  for (let i = 0; i < 6; i++) {
+    els.forEach((el, k) => {
+      if (orig[k] > 0) el.style.fontSize = orig[k] * z + "px";
+    });
+    const h = s.scrollHeight;
+    if (h <= PRINT_H_PX) break;
+    z = (z * PRINT_H_PX) / h;
+  }
+}
+
 function fittedSheetHtml() {
   return new Promise((resolve) => {
     const src = sheetClone();
@@ -54,21 +81,7 @@ function fittedSheetHtml() {
       try {
         const s = frame.contentDocument.getElementById("resume-sheet");
         if (!s) return done(null);
-        // Shrink (or slightly grow, capped) to fill exactly one page.
-        let z = PRINT_H_PX / s.scrollHeight;
-        z = Math.min(1.18, z);
-        if (z !== 1) {
-          s.style.zoom = z;
-          s.style.setProperty("width", 100 / z + "%", "important");
-        }
-        // Narrower layout wraps more lines, so re-check the rendered height
-        // and never let it spill past one page.
-        const rendered = s.getBoundingClientRect().height;
-        if (rendered > PRINT_H_PX) {
-          const z2 = z * (PRINT_H_PX / rendered);
-          s.style.zoom = z2;
-          s.style.setProperty("width", 100 / z2 + "%", "important");
-        }
+        fitSheet(frame.contentDocument, s);
         done(s.outerHTML);
       } catch {
         done(null);
