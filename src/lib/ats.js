@@ -42,6 +42,7 @@ const HEADER_PATTERNS = {
   summary: /^(professional\s+)?summary|objective|profile|about(\s+me)?/i,
   certifications: /^certifications?|certificates|licenses/i,
   achievements: /^achievements?|awards|honors|accomplishments/i,
+  coursework: /^(relevant\s+)?coursework/i,
 };
 
 function cleanHeader(line) {
