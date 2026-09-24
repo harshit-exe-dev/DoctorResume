@@ -1,21 +1,15 @@
 @import "tailwindcss";
 
 @theme {
-  --color-paper: #faf5ea;
-  --color-cream: #fffdf7;
-  --color-ink: #1c2420;
-  --color-inksoft: #4a5550;
-  --color-scrub: #0e7c6b;
-  --color-scrubdark: #0a5a4f;
-  --color-coral: #e4572e;
-  --color-coraldark: #b23c1a;
-  --color-amber: #c47b12;
-  --color-mint: #dcede6;
-  --color-line: #e3d9c2;
+  --color-bg: #fafafa;
+  --color-ink: #161616;
+  --color-mute: #747474;
+  --color-faint: #a3a3a3;
+  --color-line: #e5e5e5;
+  --color-red: #cf3a1f;
 
-  --font-display: "Fraunces", Georgia, serif;
-  --font-body: "Space Grotesk", system-ui, sans-serif;
-  --font-report: "IBM Plex Mono", ui-monospace, monospace;
+  --font-display: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
 html {
@@ -23,99 +17,49 @@ html {
 }
 
 body {
-  background: var(--color-paper);
+  background: var(--color-bg);
   color: var(--color-ink);
-  font-family: var(--font-body);
+  font-family: var(--font-display);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: var(--color-coral);
-  color: var(--color-cream);
+  background: var(--color-red);
+  color: #fff;
 }
 
-/* ---- paper grain over the whole page ---- */
-.grain::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 60;
-  opacity: 0.5;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+/* ---- faint vertical column grid, like the reference ---- */
+.gridlines {
+  background-image: linear-gradient(to right, var(--color-line) 1px, transparent 1px);
+  background-size: calc(100% / 6) 100%;
+}
+@media (max-width: 768px) {
+  .gridlines {
+    background-size: calc(100% / 4) 100%;
+  }
 }
 
-/* ---- stitched / suture card edge ---- */
-.suture {
-  border: 1.5px dashed color-mix(in srgb, var(--color-ink) 38%, transparent);
-}
-.suture-coral {
-  border: 1.5px dashed color-mix(in srgb, var(--color-coral) 65%, transparent);
-}
-
-/* ---- EKG heartbeat line ---- */
-@keyframes ekg-draw {
-  0% { stroke-dashoffset: 1200; }
-  55% { stroke-dashoffset: 0; }
-  100% { stroke-dashoffset: -1200; }
-}
-.ekg-line {
-  stroke-dasharray: 1200;
-  animation: ekg-draw 5s linear infinite;
-}
-@keyframes ekg-draw-fast {
-  0% { stroke-dashoffset: 600; }
-  100% { stroke-dashoffset: -600; }
-}
-.ekg-line-fast {
-  stroke-dasharray: 600;
-  animation: ekg-draw-fast 2.2s linear infinite;
+/* ---- micro label ---- */
+.label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-mute);
 }
 
-/* ---- heartbeat pulse dot ---- */
-@keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  14% { transform: scale(1.35); }
-  28% { transform: scale(1); }
-  42% { transform: scale(1.35); }
-  56% { transform: scale(1); }
+/* ---- underline text link ---- */
+.tlink {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
 }
-.pulse-dot {
-  animation: heartbeat 1.6s ease-in-out infinite;
-  transform-origin: center;
+.tlink:hover {
+  color: var(--color-red);
 }
 
-/* ---- rubber stamp ---- */
-@keyframes stamp-in {
-  0% { transform: scale(2.4) rotate(-18deg); opacity: 0; }
-  60% { transform: scale(0.94) rotate(-8deg); opacity: 1; }
-  100% { transform: scale(1) rotate(-8deg); opacity: 1; }
-}
-.stamp {
-  animation: stamp-in 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
-  mask-size: 120px;
-}
-
-/* ---- marquee ---- */
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-.marquee-track {
-  animation: marquee 28s linear infinite;
-}
-
-/* ---- misc ---- */
-@keyframes floaty {
-  0%, 100% { transform: translateY(0) rotate(var(--fl-rot, 0deg)); }
-  50% { transform: translateY(-10px) rotate(var(--fl-rot, 0deg)); }
-}
-.floaty {
-  animation: floaty 6s ease-in-out infinite;
-}
-
+/* ---- analyzing caret ---- */
 @keyframes blink-caret {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
@@ -123,28 +67,28 @@ body {
 .caret::after {
   content: "▍";
   animation: blink-caret 1s step-end infinite;
-  color: var(--color-coral);
+  color: var(--color-red);
 }
 
 .tabular {
   font-variant-numeric: tabular-nums;
 }
 
-/* score bar fill */
+/* ---- thin score bar ---- */
 @keyframes fillbar {
   from { width: 0; }
 }
 .fillbar {
-  animation: fillbar 1.1s cubic-bezier(0.25, 1, 0.4, 1) both;
+  animation: fillbar 1s cubic-bezier(0.25, 1, 0.4, 1) both;
 }
 
-/* gauge needle sweep */
-@keyframes needle-sweep {
-  from { transform: rotate(-90deg); }
+/* ---- gentle entrance ---- */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-.needle {
-  animation: needle-sweep 1.2s cubic-bezier(0.25, 1, 0.35, 1) both;
-  transform-origin: 100px 100px;
+.rise {
+  animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* ---- print: only the resume sheet ---- */
