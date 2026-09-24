@@ -1,32 +1,33 @@
-import Ekg, { Cross } from "./Ekg";
-
 function HowItWorks() {
   const steps = [
     {
       n: "01",
-      title: "Admit",
+      title: "admit",
       body: "Drop in your PDF, DOCX or pasted text and tell us the role you're targeting. Takes ten seconds, no account, no upload — it never leaves your browser.",
     },
     {
       n: "02",
-      title: "Diagnose",
+      title: "diagnose",
       body: "The doctor runs an 8-point inspection: contact info, file health, length, sections, keyword bloodwork, impact language, polish and ATS structure.",
     },
     {
       n: "03",
-      title: "Prescribe",
+      title: "prescribe",
       body: "Get a prioritized prescription of fixes — then one click generates a clean, single-column, ATS-friendly rewrite of your resume.",
     },
   ];
   return (
-    <section id="how" className="max-w-6xl mx-auto px-5 py-16 md:py-20 scroll-mt-6">
-      <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight text-center">Triage in <em className="text-scrub">three steps</em></h2>
-      <div className="grid md:grid-cols-3 gap-5 mt-10">
-        {steps.map((s, i) => (
-          <div key={s.n} className={`bg-cream border-2 border-ink rounded-2xl p-7 shadow-[5px_5px_0_0_var(--color-ink)] ${i === 1 ? "md:-rotate-1" : i === 2 ? "md:rotate-1" : ""}`}>
-            <p className="font-report text-sm text-coral font-semibold tracking-widest">{s.n}</p>
-            <h3 className="font-display font-black text-3xl mt-2">{s.title}</h3>
-            <p className="text-inksoft mt-3 leading-relaxed">{s.body}</p>
+    <section id="how" className="max-w-6xl mx-auto px-5 md:px-8 py-20 md:py-28 scroll-mt-6">
+      <p className="label">02 — process</p>
+      <h2 className="font-bold lowercase leading-[0.9] tracking-[-0.04em] text-5xl md:text-7xl mt-6">
+        triage in three steps.
+      </h2>
+      <div className="grid md:grid-cols-3 gap-10 mt-12 border-t border-ink pt-2">
+        {steps.map((s) => (
+          <div key={s.n} className="pt-8 border-t border-line md:border-t-0 md:pt-8">
+            <p className="font-mono text-sm text-red tabular">{s.n}</p>
+            <h3 className="text-2xl font-semibold tracking-tight lowercase mt-3">{s.title}</h3>
+            <p className="text-mute mt-3 leading-relaxed text-[15px]">{s.body}</p>
           </div>
         ))}
       </div>
@@ -35,36 +36,33 @@ function HowItWorks() {
 }
 
 const CASES = [
-  { t: "Tables & text boxes", d: "Parsers read left-to-right, top-to-bottom. Tables get scrambled into word soup — your experience ends up under your name." },
-  { t: "Photos, icons & graphics", d: "The ATS is blind to images. Anything inside a graphic — skills, logos, charts — simply doesn't exist to it." },
-  { t: "Headers & footers", d: "Many parsers skip them entirely. Contact info hiding in a header is contact info the recruiter never sees." },
-  { t: "Scanned / image PDFs", d: "A photo of your resume is not a resume. Zero extractable text means instant rejection before a human ever looks." },
-  { t: "Missing keywords", d: "Recruiters filter by skills first. No keyword match, no interview — even if you'd be perfect for the job." },
-  { t: "Walls of text", d: "No bullets, no sections, 3 pages of paragraphs. Humans skim for 7 seconds; parsers choke on the structure." },
+  { t: "tables & text boxes", d: "Parsers read left-to-right, top-to-bottom. Tables get scrambled into word soup — your experience ends up under your name." },
+  { t: "photos, icons & graphics", d: "The ATS is blind to images. Anything inside a graphic — skills, logos, charts — simply doesn't exist to it." },
+  { t: "headers & footers", d: "Many parsers skip them entirely. Contact info hiding in a header is contact info the recruiter never sees." },
+  { t: "scanned / image pdfs", d: "A photo of your resume is not a resume. Zero extractable text means instant rejection before a human ever looks." },
+  { t: "missing keywords", d: "Recruiters filter by skills first. No keyword match, no interview — even if you'd be perfect for the job." },
+  { t: "walls of text", d: "No bullets, no sections, 3 pages of paragraphs. Humans skim for 7 seconds; parsers choke on the structure." },
 ];
 
 function Intel() {
   return (
-    <section id="intel" className="bg-ink text-cream py-16 md:py-24 scroll-mt-6">
-      <div className="max-w-6xl mx-auto px-5">
-        <p className="font-report text-xs uppercase tracking-[0.25em] text-coral mb-4">Case files</p>
-        <h2 className="font-display font-black text-4xl md:text-5xl tracking-tight max-w-2xl">
-          Know your enemy: <em className="text-coral">the ATS</em>
-        </h2>
-        <p className="text-cream/70 mt-4 max-w-2xl leading-relaxed">
-          Roughly 3 out of 4 resumes are rejected by software before a human sees them.
-          These are the usual suspects the doctor screens for in every checkup.
-        </p>
-        <div className="grid md:grid-cols-3 gap-5 mt-10">
-          {CASES.map((c) => (
-            <div key={c.t} className="border border-cream/20 rounded-2xl p-6 hover:border-coral transition-colors bg-cream/[0.03]">
-              <Cross className="w-5 h-5 text-coral mb-4" />
-              <h3 className="font-display font-bold text-xl">{c.t}</h3>
-              <p className="text-cream/65 mt-2 leading-relaxed text-[15px]">{c.d}</p>
-            </div>
-          ))}
-        </div>
-        <Ekg className="w-full h-14 text-coral/70 mt-12" />
+    <section id="intel" className="max-w-6xl mx-auto px-5 md:px-8 py-20 md:py-28 scroll-mt-6">
+      <p className="label">03 — case files</p>
+      <h2 className="font-bold lowercase leading-[0.9] tracking-[-0.04em] text-5xl md:text-7xl mt-6 max-w-3xl">
+        know your enemy: the ats.
+      </h2>
+      <p className="text-mute mt-6 max-w-xl leading-relaxed text-[15px]">
+        Roughly 3 out of 4 resumes are rejected by software before a human sees them.
+        These are the usual suspects the doctor screens for in every checkup.
+      </p>
+      <div className="grid md:grid-cols-3 gap-x-10 gap-y-0 mt-12 border-t border-ink">
+        {CASES.map((c, i) => (
+          <div key={c.t} className="py-7 border-b border-line">
+            <p className="font-mono text-[11px] text-red tabular">{String(i + 1).padStart(2, "0")}</p>
+            <h3 className="text-xl font-semibold tracking-tight lowercase mt-2">{c.t}</h3>
+            <p className="text-mute mt-2 leading-relaxed text-[15px]">{c.d}</p>
+          </div>
+        ))}
       </div>
     </section>
   );
@@ -72,24 +70,31 @@ function Intel() {
 
 function Footer() {
   return (
-    <footer className="border-t-2 border-ink">
-      <div className="max-w-6xl mx-auto px-5 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="flex items-center gap-2.5">
-          <span className="w-8 h-8 rounded-lg bg-coral text-cream grid place-items-center">
-            <Cross className="w-4 h-4" />
-          </span>
-          <div>
-            <p className="font-display font-black">Doctor<span className="text-coral">Resume</span></p>
-            <p className="font-report text-[11px] uppercase tracking-widest text-inksoft">the resume clinic</p>
-          </div>
+    <footer className="no-print border-t border-ink mt-8">
+      <div className="max-w-6xl mx-auto px-5 md:px-8 py-12 grid grid-cols-2 md:grid-cols-4 gap-8 text-[13px]">
+        <div>
+          <p className="font-semibold tracking-tight text-[15px]">
+            doctorresume<sup className="text-red">®</sup>
+          </p>
+          <p className="label mt-3">the resume clinic</p>
         </div>
-        <p className="text-sm text-inksoft text-center">
-          Built by <a href="https://github.com/harshit-exe-dev" className="underline hover:text-coral font-medium text-ink">Harshit Bharti</a>
-          <span className="mx-2">·</span>not actual medical advice, but solid career advice
-        </p>
-        <a href="#clinic" className="bg-ink text-cream font-report text-xs uppercase tracking-widest px-5 py-3 rounded-full hover:bg-coral transition-colors">
-          Book a checkup
-        </a>
+        <div className="flex flex-col gap-1.5 text-mute">
+          <a href="#clinic" className="hover:text-ink w-fit">the clinic</a>
+          <a href="#how" className="hover:text-ink w-fit">how it works</a>
+          <a href="#intel" className="hover:text-ink w-fit">ats intel</a>
+        </div>
+        <div className="flex flex-col gap-1.5 text-mute">
+          <a href="https://github.com/harshit-exe-dev" target="_blank" rel="noreferrer" className="hover:text-ink w-fit">
+            built by harshit bharti
+          </a>
+          <span className="text-faint">not medical advice.</span>
+          <span className="text-faint">solid career advice.</span>
+        </div>
+        <div className="md:text-right">
+          <a href="#clinic" className="font-mono text-[11px] uppercase tracking-[0.18em] text-red">
+            ↓ book a checkup
+          </a>
+        </div>
       </div>
     </footer>
   );
