@@ -178,11 +178,15 @@ export default function Clinic() {
 
               {!pasteMode ? (
                 <div
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Upload your resume: PDF, DOCX or TXT"
                   onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                   onDragLeave={() => setDragOver(false)}
                   onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
                   onClick={() => fileInput.current?.click()}
-                  className={`border ${dragOver ? "border-red bg-red/[0.03]" : "border-line"} px-8 py-14 text-center cursor-pointer transition-colors hover:border-ink`}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.current?.click(); } }}
+                  className={`border ${dragOver ? "border-red bg-red/[0.03]" : "border-line"} px-8 py-14 text-center cursor-pointer transition-colors hover:border-ink focus:outline-none focus:border-ink`}
                 >
                   <input ref={fileInput} type="file" accept=".pdf,.docx,.txt,.md" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
                   <p className="text-2xl font-medium tracking-tight">drop your resume here</p>
