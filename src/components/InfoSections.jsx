@@ -85,7 +85,7 @@ function Footer() {
         </div>
         <div className="flex flex-col gap-1.5 text-mute">
           <a href="https://github.com/harshit-exe-dev" target="_blank" rel="noreferrer" className="hover:text-ink w-fit">
-            built by harshit bharti
+            Built by Team Shubham Bharti, Anup Kumar Gond, Tanuja Yadav and Harshit Bharti
           </a>
           <span className="text-faint">not medical advice.</span>
           <span className="text-faint">solid career advice.</span>
