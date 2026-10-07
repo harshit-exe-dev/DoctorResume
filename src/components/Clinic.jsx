@@ -85,10 +85,12 @@ export default function Clinic() {
   const [pasteText, setPasteText] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState("");
+  const [copyState, setCopyState] = useState("idle"); // idle | done | failed
   const timer = useRef(null);
+  const copyTimer = useRef(null);
   const fileInput = useRef(null);
 
-  useEffect(() => () => clearTimeout(timer.current), []);
+  useEffect(() => () => { clearTimeout(timer.current); clearTimeout(copyTimer.current); }, []);
   useEffect(() => {
     const onSample = () => runSample();
     window.addEventListener("doctorresume:sample", onSample);
@@ -154,6 +156,34 @@ export default function Clinic() {
     setMissingOpen(true);
     setPasteText("");
     setError("");
+    setCopyState("idle");
+  };
+
+  // Copy with a fallback: the Clipboard API needs a secure context, so on
+  // http://, file:// or older mobile browsers use the hidden-textarea trick.
+  // Either way the button says what happened — the old version failed silently.
+  const copyText = async () => {
+    if (!resumeData) return;
+    try {
+      const text = resumeToText(resumeData);
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;";
+        document.body.appendChild(ta);
+        ta.select();
+        if (!document.execCommand("copy")) throw new Error("execCommand copy failed");
+        ta.remove();
+      }
+      setCopyState("done");
+    } catch {
+      setCopyState("failed");
+    }
+    clearTimeout(copyTimer.current);
+    copyTimer.current = setTimeout(() => setCopyState("idle"), 2200);
   };
 
   const missingList = resumeData ? MISSING_FIELDS.filter((f) => !resumeData.contact[f.key]) : [];
@@ -456,12 +486,19 @@ export default function Clinic() {
                 </button>
                 <button
                   onClick={() => {
-                    const blob = new Blob([resumeToText(resumeData)], { type: "text/plain" });
+                    // Never revoke the object URL synchronously after click():
+                    // Safari and some mobile browsers cancel the download
+                    // before it starts. Revoke after a delay instead.
+                    const url = URL.createObjectURL(
+                      new Blob([resumeToText(resumeData)], { type: "text/plain" })
+                    );
                     const a = document.createElement("a");
-                    a.href = URL.createObjectURL(blob);
+                    a.href = url;
                     a.download = "ats-friendly-resume.txt";
+                    document.body.appendChild(a);
                     a.click();
-                    URL.revokeObjectURL(a.href);
+                    a.remove();
+                    setTimeout(() => URL.revokeObjectURL(url), 10000);
                   }}
                   className="tlink cursor-pointer"
                 >
@@ -474,10 +511,10 @@ export default function Clinic() {
                   download .html
                 </button>
                 <button
-                  onClick={() => { navigator.clipboard?.writeText(resumeToText(resumeData)); }}
+                  onClick={copyText}
                   className="tlink cursor-pointer"
                 >
-                  copy text
+                  {copyState === "done" ? "copied ✓" : copyState === "failed" ? "copy failed — use .txt" : "copy text"}
                 </button>
               </div>
               <ResumeDoc data={resumeData} />
